@@ -1,0 +1,17 @@
+#map {
+    height: 100vh; /* Make the map take full viewport height */
+    width: 100%; /* Make the map take full width */
+}
+
+.transparent-tooltip.leaflet-tooltip {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    font-size: 14px; /* Adjust the font size as needed */
+    color: black; /* Adjust the text color as needed */
+}
+
+.transparent-tooltip.leaflet-tooltip::before,
+.transparent-tooltip.leaflet-tooltip::after {
+    display: none; /* Hide the arrow */
+}

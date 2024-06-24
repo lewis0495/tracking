@@ -6,6 +6,9 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
+// Object to store the last known values for each aircraft
+const lastKnownValues = {};
+
 // Function to fetch data from OpenSky Network API
 async function fetchData() {
     const username = 'bond';
@@ -75,25 +78,30 @@ function updateMapWithAircraft(data) {
                 callsign = icao24; // Default or handle other cases as needed
             }
 
-            const latitude = aircraft[6];
-            const longitude = aircraft[5];
-            const track = aircraft[10]; // Track angle
+            const latitude = aircraft[6] !== null ? aircraft[6] : lastKnownValues[icao24]?.latitude;
+            const longitude = aircraft[5] !== null ? aircraft[5] : lastKnownValues[icao24]?.longitude;
+            const track = aircraft[10] !== null ? aircraft[10] : lastKnownValues[icao24]?.track;
 
-            // Create a marker with custom icon and callsign
-            const marker = L.marker([latitude, longitude], { icon: helicopterIcon }).addTo(map);
+            if (latitude !== undefined && longitude !== undefined && track !== undefined) {
+                // Update last known values
+                lastKnownValues[icao24] = { latitude, longitude, track };
 
-            // Rotate the marker based on track angle
-            marker.getElement().style.transform += ` rotate(${track}deg)`;
+                // Create a marker with custom icon and callsign
+                const marker = L.marker([latitude, longitude], { icon: helicopterIcon }).addTo(map);
 
-            // Set marker content to display callsign and other details
-            marker.bindTooltip(`<b>${callsign}</b>`, {
-                permanent: true, // Make the tooltip permanent (always shown)
-                direction: 'right', // Position the tooltip to the right of the marker
-                className: 'transparent-tooltip' // Custom CSS class for styling
-            }).openTooltip(); // Open the tooltip immediately
+                // Rotate the marker based on track angle
+                marker.setRotationAngle(track);
 
-            // Optionally, you can add a popup with more details if needed
-            // marker.bindPopup(`Aircraft ${icao24}<br/>Callsign: ${callsign}`).openPopup();
+                // Set marker content to display callsign and other details
+                marker.bindTooltip(`<b>${callsign}</b>`, {
+                    permanent: true, // Make the tooltip permanent (always shown)
+                    direction: 'right', // Position the tooltip to the right of the marker
+                    className: 'transparent-tooltip' // Custom CSS class for styling
+                }).openTooltip(); // Open the tooltip immediately
+
+                // Optionally, you can add a popup with more details if needed
+                // marker.bindPopup(`Aircraft ${icao24}<br/>Callsign: ${callsign}`).openPopup();
+            }
         });
     }
 }

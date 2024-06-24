@@ -47,7 +47,7 @@ body {
 #logo-container {
     position: absolute;
     bottom: 0px; /* Adjust this value to position the logo vertically */
-    right: 0px; /* Adjust this value to position the logo horizontally */
+    left: 0px; /* Adjust this value to position the logo horizontally */
     z-index: 1; /* Ensure the logo is above other content */
 }
 

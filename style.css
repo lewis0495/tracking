@@ -1,17 +1,43 @@
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh; /* Make the body height full viewport height */
+    position: relative; /* Ensure relative positioning for absolute children */
+    overflow: hidden; /* Prevent any overflow beyond viewport */
+}
+
 #map {
-    height: 100vh; /* Make the map take full viewport height */
+    height: calc(100vh - 0px); /* Make the map take full viewport height minus space for logo */
     width: 100%; /* Make the map take full width */
+    z-index: 0; /* Ensure the map is behind other content */
+    position: relative; /* Ensure stacking context for child elements */
 }
 
 .transparent-tooltip.leaflet-tooltip {
     background: transparent;
     border: none;
     box-shadow: none;
-    font-size: 14px; /* Adjust the font size as needed */
+    font-size: 10px; /* Adjust the font size as needed */
     color: black; /* Adjust the text color as needed */
+    padding: 8px; /* Adjust padding for internal spacing */
+    text-align: center; /* Center-align text horizontally */
 }
 
 .transparent-tooltip.leaflet-tooltip::before,
 .transparent-tooltip.leaflet-tooltip::after {
     display: none; /* Hide the arrow */
+}
+
+/* Ensure logo is positioned in bottom left corner */
+#logo-container {
+    position: absolute;
+    bottom: 0px; /* Adjust this value to position the logo vertically */
+    right: 0px; /* Adjust this value to position the logo horizontally */
+    z-index: 1; /* Ensure the logo is above other content */
+}
+
+#logo-container img {
+    max-width: 250px; /* Ensure the logo does not exceed its container width */
+    height: auto; /* Maintain aspect ratio */
+    display: block; /* Remove any default inline styles */
 }

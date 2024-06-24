@@ -1,5 +1,5 @@
 // Leaflet map initialization
-const initialLatitude = 53.176895;
+const initialLatitude = 53.276895;
 const initialLongitude = 1.480952;
 const initialZoom = 9;
 

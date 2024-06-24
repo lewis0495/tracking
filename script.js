@@ -25,7 +25,7 @@ const currentMarkers = {};
 async function fetchData() {
     const username = 'bond';
     const password = 'Happydays_1';
-    const icao24List = ['40809a', '40809b', '407fb9', '408099', '4851ad', '4067f0']; // List of ICAO24 addresses
+    const icao24List = ['40809a', '40809b', '407fb9', '408099']; // List of ICAO24 addresses
 
     const baseUrl = 'https://opensky-network.org/api/states/all?';
     const url = baseUrl + 'icao24=' + icao24List.join('&icao24=');
@@ -160,7 +160,7 @@ function updateMapWithAircraft(data) {
 // Function to load and display oil rig data
 async function loadOilRigs() {
     try {
-        const response = await fetch('oil_rigs.json');
+        const response = await fetch('oilrigs.json');
         if (!response.ok) {
             throw new Error('Network response was not ok: ' + response.status);
         }
@@ -171,7 +171,7 @@ async function loadOilRigs() {
         // Custom icon for the oil rig marker
         const oilRigIcon = L.icon({
             iconUrl: 'oilrig.png',
-            iconSize: [32, 32], // size of the icon
+            iconSize: [16, 16], // size of the icon
             iconAnchor: [16, 16], // point of the icon which will correspond to marker's location
             className: 'oil-rig-icon' // Add a class for CSS styling
         });
@@ -185,8 +185,8 @@ async function loadOilRigs() {
             // Set marker content to display the rig name
             marker.bindTooltip(`<b>${name}</b>`, {
                 permanent: true, // Make the tooltip permanent (always shown)
-                direction: 'right', // Position the tooltip to the right of the marker
-                className: 'transparent-tooltip' // Custom CSS class for styling
+                direction: 'left', // Position the tooltip to the right of the marker
+                className: 'transparent-tooltip1' // Custom CSS class for styling
             }).openTooltip(); // Open the tooltip immediately
 
             // Optionally, you can add a popup with more details if needed

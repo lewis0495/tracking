@@ -27,6 +27,21 @@ body {
 .transparent-tooltip.leaflet-tooltip::after {
     display: none; /* Hide the arrow */
 }
+.transparent-tooltip1.leaflet-tooltip {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    font-size: 8px; /* Adjust the font size as needed */
+    color: black; /* Adjust the text color as needed */
+    padding: 8px; /* Adjust padding for internal spacing */
+    text-align: center; /* Center-align text horizontally */
+}
+
+.transparent-tooltip1.leaflet-tooltip::before,
+.transparent-tooltip1.leaflet-tooltip::after {
+    display: none; /* Hide the arrow */
+}
+
 
 /* Ensure logo is positioned in bottom left corner */
 #logo-container {

@@ -53,77 +53,18 @@ async function fetchData() {
         }
 
         const data = await response.json();
-        console.log('Fetched data from airplanes.live:', data);
+        console.log('Fetched data:', data);
 
-        // Update map with aircraft markers from airplanes.live
-        updateMapWithAircraft(data.ac, 'airplanes.live');
-
-        // Check if any aircraft did not have position data
-        const missingAircraft = icao24List.filter(icao24 => !data.ac.some(aircraft => aircraft.hex === icao24));
-        if (missingAircraft.length > 0) {
-            console.log('Fetching missing aircraft data from opensky-network for:', missingAircraft);
-            await fetchFromOpenSky(missingAircraft);
-        }
+        // Update map with aircraft markers
+        updateMapWithAircraft(data.ac);
 
     } catch (error) {
-        console.error('Error fetching or updating data from airplanes.live:', error);
+        console.error('Error fetching or updating data:', error);
     }
 }
-
-async function fetchFromOpenSky(icao24List) {
-    const username = 'your_username';
-    const password = 'your_password';
-
-    const baseUrl = 'https://opensky-network.org/api/states/all?';
-    const url = baseUrl + 'icao24=' + icao24List.join('&icao24=');
-
-    try {
-        const response = await fetch(url, {
-            headers: {
-                'Authorization': 'Basic ' + btoa(username + ':' + password)
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error('Network response was not ok: ' + response.status);
-        }
-
-        const data = await response.json();
-
-        // Check if data is in the expected format
-        if (!Array.isArray(data.states) || data.states.length === 0) {
-            throw new Error('Data from OpenSky Network API is not in expected format');
-        }
-
-        console.log('Fetched data from opensky-network:', data);
-
-        // Process data to extract necessary information
-        const aircraftData = data.states.map(state => ({
-            icao24: state[0],
-            callsign: state[1].trim(), // Trim to remove any extra spaces
-            latitude: state[5],
-            longitude: state[6],
-            track: state[10]
-        }));
-
-        // Update map with aircraft markers from opensky-network
-        updateMapWithAircraft(aircraftData);
-
-    } catch (error) {
-        console.error('Error fetching or updating data from opensky-network:', error);
-    }
-}
-
-
 
 // Function to update map with aircraft markers
-function updateMapWithAircraft(data, source) {
-    // Check if data is valid before processing
-    if (!Array.isArray(data)) {
-        console.error('Invalid data format for updating map:', data);
-        return;
-    }
-
+function updateMapWithAircraft(data) {
     // Custom icon for the aircraft marker
     const helicopterIcon = L.icon({
         iconUrl: 'helicopter.png',
@@ -138,11 +79,12 @@ function updateMapWithAircraft(data, source) {
     // Process aircraft data and create markers
     const updatedAircraft = new Set();
     data.forEach(aircraft => {
-        const [icao24, callsign, latitude, longitude, track] = aircraft;
+        const { hex: icao24, lat: latitude, lon: longitude, track } = aircraft;
+        updatedAircraft.add(icao24);
 
-        if (latitude !== null && longitude !== null) {
+        if (latitude !== undefined && longitude !== undefined) {
             // Update last known values
-            lastKnownValues[icao24] = { latitude, longitude, track, callsign };
+            lastKnownValues[icao24] = { latitude, longitude, track, callsign: lastKnownValues[icao24]?.callsign };
 
             // Remove existing marker if present
             if (currentMarkers[icao24]) {
@@ -166,33 +108,16 @@ function updateMapWithAircraft(data, source) {
             const baseOffset = 20; // Base offset to move the list lower down
             const offset = [0, baseOffset - 10 * positionCounts[positionKey]]; // Reduced gap to 10 pixels
 
-            // Set marker content to display only callsign initially
-            marker.bindTooltip(`<b>${callsign}</b>`, {
+            // Set marker content to display callsign and other details
+            marker.bindTooltip(`<b>${lastKnownValues[icao24]?.callsign}</b>`, {
                 permanent: true, // Make the tooltip permanent (always shown)
                 direction: 'right', // Position the tooltip to the right of the marker
                 className: 'transparent-tooltip', // Custom CSS class for styling
                 offset: offset
-            });
+            }).openTooltip(); // Open the tooltip immediately
 
             // Store the marker for later reference
             currentMarkers[icao24] = marker;
-
-            // Add event listeners to show data source on hover or click
-            marker.on('mouseover', function(e) {
-                marker.openTooltip(`<b>${callsign}</b><br>Data Source: ${source}`, {
-                    direction: 'right', // Position the tooltip to the right of the marker
-                    offset: offset,
-                    className: 'transparent-tooltip' // Ensure transparent styling
-                });
-            });
-
-            marker.on('mouseout', function(e) {
-                marker.setTooltipContent(`<b>${callsign}</b>`);
-            });
-
-            marker.on('click', function(e) {
-                marker.setTooltipContent(`<b>${callsign}</b><br>Data Source: ${source}`);
-            });
         }
     });
 
@@ -223,33 +148,16 @@ function updateMapWithAircraft(data, source) {
             const baseOffset = 20; // Base offset to move the list lower down
             const offset = [0, baseOffset - 10 * positionCounts[positionKey]]; // Reduced gap to 10 pixels
 
-            // Set marker content to display only callsign initially
+            // Set marker content to display callsign and other details
             marker.bindTooltip(`<b>${callsign}</b>`, {
                 permanent: true, // Make the tooltip permanent (always shown)
                 direction: 'right', // Position the tooltip to the right of the marker
                 className: 'transparent-tooltip', // Custom CSS class for styling
                 offset: offset
-            });
+            }).openTooltip(); // Open the tooltip immediately
 
             // Store the marker for later reference
             currentMarkers[icao24] = marker;
-
-            // Add event listeners to show data source on hover or click
-            marker.on('mouseover', function(e) {
-                marker.openTooltip(`<b>${callsign}</b><br>Data Source: ${source}`, {
-                    direction: 'right', // Position the tooltip to the right of the marker
-                    offset: offset,
-                    className: 'transparent-tooltip' // Ensure transparent styling
-                });
-            });
-
-            marker.on('mouseout', function(e) {
-                marker.setTooltipContent(`<b>${callsign}</b>`);
-            });
-
-            marker.on('click', function(e) {
-                marker.setTooltipContent(`<b>${callsign}</b><br>Data Source: ${source}`);
-            });
         }
     });
 }
@@ -270,26 +178,34 @@ async function loadOilRigs() {
             iconUrl: 'oilrig.png',
             iconSize: [16, 16], // size of the icon
             iconAnchor: [16, 16], // point of the icon which will correspond to marker's location
-            className: 'oilrig-icon' // Add a class for CSS rotation
+            className: 'oil-rig-icon' // Add a class for CSS styling
         });
 
-        // Add markers for each oil rig
         rigs.forEach(rig => {
-            L.marker([rig.latitude, rig.longitude], { icon: oilRigIcon }).addTo(map)
-                .bindTooltip(`<b>${rig.name}`, {
-                    permanent: true, // Non-permanent tooltip
-                    direction: 'left', // Position the tooltip above the marker
-                    className: 'transparent-tooltip1', // Custom CSS class for styling
-                    offset: [-2, -9] // Offset to adjust the tooltip position
-                });
+            const { name, latitude, longitude } = rig;
+
+            // Create a marker for each oil rig
+            const marker = L.marker([latitude, longitude], { icon: oilRigIcon }).addTo(map);
+
+            // Set marker content to display the rig name
+            marker.bindTooltip(`<b>${name}</b>`, {
+                permanent: true, // Make the tooltip permanent (always shown)
+                direction: 'left', // Position the tooltip to the right of the marker
+                className: 'transparent-tooltip1' // Custom CSS class for styling
+            }).openTooltip(); // Open the tooltip immediately
+
+            // Optionally, you can add a popup with more details if needed
+            // marker.bindPopup(`Oil Rig: ${name}`).openPopup();
         });
 
     } catch (error) {
-        console.error('Error loading oil rigs data:', error);
+        console.error('Error loading or displaying oil rigs:', error);
     }
 }
 
-// Initialize the map and fetch data
+// Initial fetch and update
 fetchData();
 loadOilRigs();
-setInterval(fetchData, 30000); // Refresh data 30 seconds
+
+// Update every 30 seconds (adjust as needed)
+setInterval(fetchData, 30000);

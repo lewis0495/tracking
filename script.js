@@ -70,10 +70,9 @@ async function fetchData() {
     }
 }
 
-// Function to fetch data from OpenSky Network API
 async function fetchFromOpenSky(icao24List) {
-    const username = 'lewis0495';
-    const password = 'Happydays_1';
+    const username = 'your_username';
+    const password = 'your_password';
 
     const baseUrl = 'https://opensky-network.org/api/states/all?';
     const url = baseUrl + 'icao24=' + icao24List.join('&icao24=');
@@ -91,20 +90,30 @@ async function fetchFromOpenSky(icao24List) {
 
         const data = await response.json();
 
-        // Check if data is null or not an object/array
-        if (!data || !Array.isArray(data.states)) {
-            throw new Error('Data from OpenSky Network API is not in expected format.');
+        // Check if data is in the expected format
+        if (!Array.isArray(data.states) || data.states.length === 0) {
+            throw new Error('Data from OpenSky Network API is not in expected format');
         }
 
         console.log('Fetched data from opensky-network:', data);
 
+        // Process data to extract necessary information
+        const aircraftData = data.states.map(state => ({
+            icao24: state[0],
+            callsign: state[1].trim(), // Trim to remove any extra spaces
+            latitude: state[5],
+            longitude: state[6],
+            track: state[10]
+        }));
+
         // Update map with aircraft markers from opensky-network
-        updateMapWithAircraft(data.states, 'OpenSky Network');
+        updateMapWithAircraft(aircraftData);
 
     } catch (error) {
         console.error('Error fetching or updating data from opensky-network:', error);
     }
 }
+
 
 
 // Function to update map with aircraft markers

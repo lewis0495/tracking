@@ -40,9 +40,11 @@ const lastKnownValues = {
 // Object to store the current markers on the map
 const currentMarkers = {};
 
-// Function to fetch data from the new API source
-async function fetchData() {
-    const icao24List = ['40809a', '40809b', '407fb9', '408099']; // List of ICAO24 addresses
+// Alternating between APIs
+let useAirplanesLive = true;
+
+// Function to fetch data from airplanes.live API
+async function fetchFromAirplanesLive(icao24List) {
     const url = `https://api.airplanes.live/v2/icao/${icao24List.join(',')}`;
 
     try {
@@ -53,13 +55,47 @@ async function fetchData() {
         }
 
         const data = await response.json();
-        console.log('Fetched data:', data);
+        console.log('Fetched data from airplanes.live:', data);
 
         // Update map with aircraft markers
         updateMapWithAircraft(data.ac);
 
     } catch (error) {
-        console.error('Error fetching or updating data:', error);
+        console.error('Error fetching or updating data from airplanes.live:', error);
+        // If an error occurs, update the map using last known positions
+        updateMapWithAircraft(null);
+    }
+}
+
+// Function to fetch data from OpenSky Network API
+async function fetchFromOpenSky(icao24List) {
+    const username = useAirplanesLive ? 'bond' : 'lewis0495';
+    const password = 'Happydays_1';
+
+    const baseUrl = 'https://opensky-network.org/api/states/all?';
+    const url = baseUrl + 'icao24=' + icao24List.join('&icao24=');
+
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': 'Basic ' + btoa(username + ':' + password)
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.status);
+        }
+
+        const data = await response.json();
+        console.log('Fetched data from opensky-network:', data);
+
+        // Update map with aircraft markers from opensky-network
+        updateMapWithAircraft(data.states);
+
+    } catch (error) {
+        console.error('Error fetching or updating data from opensky-network:', error);
+        // If an error occurs, update the map using last known positions
+        updateMapWithAircraft(null);
     }
 }
 
@@ -76,10 +112,21 @@ function updateMapWithAircraft(data) {
     // Track number of aircraft at each position
     const positionCounts = {};
 
+    // If data is null, use last known values
+    const aircraftData = data || Object.keys(lastKnownValues).map(icao24 => {
+        const { latitude, longitude, track, callsign } = lastKnownValues[icao24];
+        return [icao24, callsign, null, null, null, longitude, latitude, null, null, null, track];
+    });
+
     // Process aircraft data and create markers
     const updatedAircraft = new Set();
-    data.forEach(aircraft => {
-        const { hex: icao24, lat: latitude, lon: longitude, track } = aircraft;
+    aircraftData.forEach(aircraft => {
+        const icao24 = aircraft[0];
+        const callsign = aircraft[1];
+        const latitude = aircraft[6];
+        const longitude = aircraft[5];
+        const track = aircraft[10];
+
         updatedAircraft.add(icao24);
 
         if (latitude !== undefined && longitude !== undefined) {
@@ -162,6 +209,20 @@ function updateMapWithAircraft(data) {
     });
 }
 
+// Function to fetch data from the appropriate API based on the flag
+function fetchData() {
+    const icao24List = Object.keys(lastKnownValues);
+
+    if (useAirplanesLive) {
+        fetchFromAirplanesLive(icao24List);
+    } else {
+        fetchFromOpenSky(icao24List);
+    }
+
+    // Toggle flag for next fetch
+    useAirplanesLive = !useAirplanesLive;
+}
+
 // Function to load and display oil rig data
 async function loadOilRigs() {
     try {
@@ -187,13 +248,14 @@ async function loadOilRigs() {
             // Create a marker for each oil rig
             const marker = L.marker([latitude, longitude], { icon: oilRigIcon }).addTo(map);
 
-            // Set marker content to display the rig name
+            // Set marker content to display the rig name with pixel offset for the tooltip
+            const offset = [-2, -8]; // Adjust these values as needed to reposition the tooltip
             marker.bindTooltip(`<b>${name}</b>`, {
                 permanent: true, // Make the tooltip permanent (always shown)
                 direction: 'left', // Position the tooltip to the right of the marker
-                className: 'transparent-tooltip1' // Custom CSS class for styling
+                className: 'transparent-tooltip1', // Custom CSS class for styling
+                offset: offset // Apply pixel offset
             }).openTooltip(); // Open the tooltip immediately
-
             // Optionally, you can add a popup with more details if needed
             // marker.bindPopup(`Oil Rig: ${name}`).openPopup();
         });
@@ -207,5 +269,5 @@ async function loadOilRigs() {
 fetchData();
 loadOilRigs();
 
-// Update every 30 seconds (adjust as needed)
-setInterval(fetchData, 30000);
+// Set interval to alternate between APIs
+setInterval(fetchData, 30000); // 30 seconds

@@ -56,4 +56,9 @@ body {
     height: auto; /* Maintain aspect ratio */
     display: block; /* Remove any default inline styles */
 }
+.helicopter-icon {
+    transition: transform 0.5s;
+}
+
+
 

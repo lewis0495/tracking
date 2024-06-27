@@ -31,10 +31,10 @@ L.control.layers(baseLayers, overlays).addTo(map);
 
 // Object to store the last known values for each aircraft
 const lastKnownValues = {
-    '40809a': { latitude: 52.676895, longitude: 1.280952, track: 0, callsign: 'G-PJCN' },
-    '40809b': { latitude: 52.676895, longitude: 1.280952, track: 0, callsign: 'G-PJCS' },
-    '407fb9': { latitude: 52.676895, longitude: 1.280952, track: 0, callsign: 'G-PJCD' },
-    '408099': { latitude: 52.676895, longitude: 1.280952, track: 0, callsign: 'G-PJCM' },
+    '40809a': { latitude: 52.676895, longitude: 1.280952, track: 0, callsign: 'G-PJCN', timestamp: Date.now() },
+    '40809b': { latitude: 52.676895, longitude: 1.280952, track: 0, callsign: 'G-PJCS', timestamp: Date.now() },
+    '407fb9': { latitude: 52.676895, longitude: 1.280952, track: 0, callsign: 'G-PJCD', timestamp: Date.now() },
+    '408099': { latitude: 52.676895, longitude: 1.280952, track: 0, callsign: 'G-PJCM', timestamp: Date.now() },
 };
 
 // Object to store the current markers on the map
@@ -99,30 +99,59 @@ async function fetchFromOpenSky(icao24List) {
     }
 }
 
-// Function to update map with aircraft markers
-function updateMapWithAircraft(data) {
-    // Custom icon for the aircraft marker
-    const helicopterIcon = L.icon({
-        iconUrl: 'helicopter.png',
+// Helicopter icons for animation frames
+const helicopterIcons = [
+    L.icon({
+        iconUrl: 'helicopter1.png',
         iconSize: [32, 32], // size of the icon
         iconAnchor: [16, 16], // point of the icon which will correspond to marker's location
         className: 'helicopter-icon' // Add a class for CSS rotation
-    });
+    }),
+    L.icon({
+        iconUrl: 'helicopter2.png',
+        iconSize: [32, 32], // size of the icon
+        iconAnchor: [16, 16], // point of the icon which will correspond to marker's location
+        className: 'helicopter-icon' // Add a class for CSS rotation
+    }),
+    L.icon({
+        iconUrl: 'helicopter3.png',
+        iconSize: [32, 32], // size of the icon
+        iconAnchor: [16, 16], // point of the icon which will correspond to marker's location
+        className: 'helicopter-icon' // Add a class for CSS rotation
+    })
+];
 
-    // Track number of aircraft at each position
+// Function to create a new aircraft marker
+function createAircraftMarker(latitude, longitude, track, icao24, icon, offset) {
+    const callsign = lastKnownValues[icao24]?.callsign;
+    const marker = L.marker([latitude, longitude], { icon: icon }).addTo(map);
+
+    // Rotate the marker based on track angle
+    marker.setRotationAngle(track);
+
+    // Set marker content to display callsign and other details
+    marker.bindTooltip(`<b>${callsign}</b>`, {
+        permanent: true, // Make the tooltip permanent (always shown)
+        direction: 'right', // Position the tooltip to the right of the marker
+        className: 'transparent-tooltip', // Custom CSS class for styling
+        offset: offset // Apply the offset to avoid overlap
+    }).openTooltip(); // Open the tooltip immediately
+
+    return marker;
+}
+
+// Function to update map with aircraft markers
+function updateMapWithAircraft(data) {
     const positionCounts = {};
+    const updatedAircraft = new Set();
 
-    // If data is null, use last known values
     const aircraftData = data || Object.keys(lastKnownValues).map(icao24 => {
         const { latitude, longitude, track, callsign } = lastKnownValues[icao24];
         return [icao24, callsign, null, null, null, longitude, latitude, null, null, null, track];
     });
 
-    // Process aircraft data and create markers
-    const updatedAircraft = new Set();
     aircraftData.forEach(aircraft => {
         const icao24 = aircraft[0];
-        const callsign = aircraft[1];
         const latitude = aircraft[6];
         const longitude = aircraft[5];
         const track = aircraft[10];
@@ -130,8 +159,8 @@ function updateMapWithAircraft(data) {
         updatedAircraft.add(icao24);
 
         if (latitude !== undefined && longitude !== undefined) {
-            // Update last known values
-            lastKnownValues[icao24] = { latitude, longitude, track, callsign: lastKnownValues[icao24]?.callsign };
+            // Update last known values and timestamp
+            lastKnownValues[icao24] = { latitude, longitude, track, callsign: lastKnownValues[icao24]?.callsign, timestamp: Date.now() };
 
             // Remove existing marker if present
             if (currentMarkers[icao24]) {
@@ -145,23 +174,12 @@ function updateMapWithAircraft(data) {
             }
             positionCounts[positionKey]++;
 
-            // Create a marker with custom icon and callsign
-            const marker = L.marker([latitude, longitude], { icon: helicopterIcon }).addTo(map);
-
-            // Rotate the marker based on track angle
-            marker.setRotationAngle(track);
-
             // Calculate tooltip offset to avoid overlap
             const baseOffset = 20; // Base offset to move the list lower down
             const offset = [0, baseOffset - 10 * positionCounts[positionKey]]; // Reduced gap to 10 pixels
 
-            // Set marker content to display callsign and other details
-            marker.bindTooltip(`<b>${lastKnownValues[icao24]?.callsign}</b>`, {
-                permanent: true, // Make the tooltip permanent (always shown)
-                direction: 'right', // Position the tooltip to the right of the marker
-                className: 'transparent-tooltip', // Custom CSS class for styling
-                offset: offset
-            }).openTooltip(); // Open the tooltip immediately
+            // Create a marker with the first frame icon
+            const marker = createAircraftMarker(latitude, longitude, track, icao24, helicopterIcons[0], offset);
 
             // Store the marker for later reference
             currentMarkers[icao24] = marker;
@@ -185,23 +203,12 @@ function updateMapWithAircraft(data) {
             }
             positionCounts[positionKey]++;
 
-            // Create a marker with custom icon and callsign
-            const marker = L.marker([latitude, longitude], { icon: helicopterIcon }).addTo(map);
-
-            // Rotate the marker based on track angle
-            marker.setRotationAngle(track);
-
             // Calculate tooltip offset to avoid overlap
             const baseOffset = 20; // Base offset to move the list lower down
             const offset = [0, baseOffset - 10 * positionCounts[positionKey]]; // Reduced gap to 10 pixels
 
-            // Set marker content to display callsign and other details
-            marker.bindTooltip(`<b>${callsign}</b>`, {
-                permanent: true, // Make the tooltip permanent (always shown)
-                direction: 'right', // Position the tooltip to the right of the marker
-                className: 'transparent-tooltip', // Custom CSS class for styling
-                offset: offset
-            }).openTooltip(); // Open the tooltip immediately
+            // Create a marker with the first frame icon
+            const marker = createAircraftMarker(latitude, longitude, track, icao24, helicopterIcons[0], offset);
 
             // Store the marker for later reference
             currentMarkers[icao24] = marker;
@@ -271,3 +278,23 @@ loadOilRigs();
 
 // Set interval to alternate between APIs
 setInterval(fetchData, 30000); // 30 seconds
+
+// Animation interval
+let currentFrame = 0;
+setInterval(() => {
+    const now = Date.now();
+    const twoMinutes = 2 * 60 * 1000;
+
+    Object.keys(currentMarkers).forEach(icao24 => {
+        const marker = currentMarkers[icao24];
+        const lastUpdate = lastKnownValues[icao24]?.timestamp;
+
+        if (lastUpdate && (now - lastUpdate) <= twoMinutes) {
+            currentFrame = (currentFrame + 1) % helicopterIcons.length;
+            marker.setIcon(helicopterIcons[currentFrame]);
+        } else {
+            // If the timestamp is older than 2 minutes, stop the animation by setting the icon to the first frame
+            marker.setIcon(helicopterIcons[0]);
+        }
+    });
+}, 500); // Change frame every 500ms

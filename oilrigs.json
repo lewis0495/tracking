@@ -1,12 +1,18 @@
 [
     {
-        "name": "Rig Alpha",
-        "latitude": 53.716216,
-        "longitude": 1.281202
+        "name": "HAEVA",
+        "latitude": 52.895,
+        "longitude": 2.286667
     },
     {
-        "name": "Rig Beta",
-        "latitude": 53.850168,
-        "longitude": 1.284913
+        "name": "18B",
+        "latitude": 53.391667,
+        "longitude": 2.523333
+    },
+{
+        "name": "23C",
+        "latitude": 53.306667,
+        "longitude": 2.565
     }
 ]
+

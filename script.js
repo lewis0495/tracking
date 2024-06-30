@@ -255,7 +255,7 @@ async function loadOilRigs() {
             // Create a marker for each oil rig
             const marker = L.marker([latitude, longitude], { icon: oilRigIcon }).addTo(map);
 
-            // Set marker content to display the rig name with pixel offset for the tooltip
+              // Set marker content to display the rig name with pixel offset for the tooltip
             const offset = [-2, -8]; // Adjust these values as needed to reposition the tooltip
             marker.bindTooltip(`<b>${name}</b>`, {
                 permanent: true, // Make the tooltip permanent (always shown)
@@ -263,8 +263,6 @@ async function loadOilRigs() {
                 className: 'transparent-tooltip1', // Custom CSS class for styling
                 offset: offset // Apply pixel offset
             }).openTooltip(); // Open the tooltip immediately
-            // Optionally, you can add a popup with more details if needed
-            // marker.bindPopup(`Oil Rig: ${name}`).openPopup();
         });
 
     } catch (error) {

@@ -31,9 +31,9 @@ body {
     background: transparent;
     border: none;
     box-shadow: none;
-    font-size: 8px; /* Adjust the font size as needed */
+    font-size: 4px; /* Adjust the font size as needed */
     color: black; /* Adjust the text color as needed */
-    padding: 8px; /* Adjust padding for internal spacing */
+    padding: 0%; /* Adjust padding for internal spacing */
     text-align: center; /* Center-align text horizontally */
 }
 
@@ -56,9 +56,4 @@ body {
     height: auto; /* Maintain aspect ratio */
     display: block; /* Remove any default inline styles */
 }
-.helicopter-icon {
-    transition: transform 0.5s;
-}
-
-
 

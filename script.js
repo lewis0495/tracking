@@ -241,34 +241,72 @@ async function loadOilRigs() {
         const rigs = await response.json();
         console.log('Loaded oil rigs:', rigs);
 
-        // Custom icon for the oil rig marker
-        const oilRigIcon = L.icon({
-            iconUrl: 'oilrig.png',
-            iconSize: [12, 12], // size of the icon
-            iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
-            className: 'oil-rig-icon' // Add a class for CSS styling
-        });
+        // Object to store the circle markers for later reference
+        const oilRigMarkers = {};
 
         rigs.forEach(rig => {
             const { name, latitude, longitude } = rig;
 
-            // Create a marker for each oil rig
-            const marker = L.marker([latitude, longitude], { icon: oilRigIcon }).addTo(map);
+            // Create a circle marker for each oil rig
+            const circleMarker = L.circleMarker([latitude, longitude], {
+                radius: 5, // Initial radius (this will be adjusted dynamically)
+                fillColor: 'red', // Customize the fill color
+                color: 'red', // Border color
+                weight: 1, // Border width
+                opacity: 1,
+                fillOpacity: 0.8
+            }).addTo(map);
 
-              // Set marker content to display the rig name with pixel offset for the tooltip
-            const offset = [-2, -8]; // Adjust these values as needed to reposition the tooltip
-            marker.bindTooltip(`<b>${name}</b>`, {
+            // Set marker content to display the rig name with pixel offset for the tooltip
+            const offset = [0, -5]; // Adjust these values as needed to reposition the tooltip
+            const tooltip = circleMarker.bindTooltip(`<b>${name}</b>`, {
                 permanent: true, // Make the tooltip permanent (always shown)
-                direction: 'left', // Position the tooltip to the right of the marker
+                direction: 'top', // Position the tooltip above the marker
                 className: 'transparent-tooltip1', // Custom CSS class for styling
                 offset: offset // Apply pixel offset
             }).openTooltip(); // Open the tooltip immediately
+
+            // Store the circle marker and tooltip in the oilRigMarkers object
+            oilRigMarkers[name] = { circleMarker, tooltip };
         });
+
+        // Function to update the size of the circle markers and tooltips based on the zoom level
+        function updateOilRigMarkerSizes() {
+            const zoomLevel = map.getZoom();
+            const newRadius = Math.pow(2, zoomLevel - 10); // Adjust this formula to control the size scaling
+            const newFontSize = (zoomLevel * 1.2) + 'px'; // Adjust this formula to control the font size scaling
+
+            for (const name in oilRigMarkers) {
+                const { circleMarker, tooltip } = oilRigMarkers[name];
+                circleMarker.setRadius(newRadius);
+
+                // Update tooltip font size
+                const tooltipElement = tooltip.getElement();
+                if (tooltipElement) {
+                    tooltipElement.style.fontSize = newFontSize;
+                }
+            }
+        }
+
+        // Update the size of the markers and tooltips initially
+        updateOilRigMarkerSizes();
+
+        // Update the size of the markers and tooltips whenever the zoom level changes
+        map.on('zoomend', updateOilRigMarkerSizes);
 
     } catch (error) {
         console.error('Error loading or displaying oil rigs:', error);
     }
 }
+
+// Initial fetch and update
+fetchData();
+loadOilRigs();
+animateHelicopters();
+
+// Update every 30 seconds (adjust as needed)
+setInterval(fetchData, 30000);
+
 
 // Initial fetch and update
 fetchData();

@@ -1,18 +1,162 @@
 [
     {
-        "name": "HAEVA",
-        "latitude": 52.895,
-        "longitude": 2.286667
-    },
-    {
         "name": "18B",
         "latitude": 53.391667,
         "longitude": 2.523333
     },
-{
+    {
         "name": "23C",
         "latitude": 53.306667,
         "longitude": 2.565
+    },
+    {
+        "name": "27A",
+        "latitude": 53.055,
+        "longitude": 2.233333
+    },
+    {
+        "name": "27BC",
+        "latitude": 53.05,
+        "longitude": 2.285
+    },
+    {
+        "name": "27C",
+        "latitude": 53.026667,
+        "longitude": 2.256667
+    },
+    {
+        "name": "27D",
+        "latitude": 53.016667,
+        "longitude": 2.34
+    },
+    {
+        "name": "27E",
+        "latitude": 53.06,
+        "longitude": 2.21
+    },
+    {
+        "name": "27F",
+        "latitude": 53.04,
+        "longitude": 2.315
+    },
+    {
+        "name": "27G",
+        "latitude": 53.036667,
+        "longitude": 2.381667
+    },
+    {
+        "name": "27H",
+        "latitude": 53.003333,
+        "longitude": 2.213333
+    },
+    {
+        "name": "27J",
+        "latitude": 53.033333,
+        "longitude": 2.22
+    },
+    {
+        "name": "30A",
+        "latitude": 53.005,
+        "longitude": 2.895
+    },
+    {
+        "name": "23D",
+        "latitude": 53.301,
+        "longitude": 2.492333
+    },
+    {
+        "name": "29C",
+        "latitude": 53.095,
+        "longitude": 1.7325
+    },
+    {
+        "name": "29Q",
+        "latitude": 53.018333,
+        "longitude": 1.796667
+    },
+    {
+        "name": "VA72",
+        "latitude": 53.018333,
+        "longitude": 1.796667
+    },
+    {
+        "name": "CLEETON",
+        "latitude": 54.033333,
+        "longitude": 0.726667
+    },
+    {
+        "name": "EXCALIBUR",
+        "latitude": 53.465,
+        "longitude": 1.343333
+    },
+    {
+        "name": "HAEVA",
+        "latitude": 52.907,
+        "longitude": 2.216667
+    },
+    {
+        "name": "HOTON",
+        "latitude": 53.808333,
+        "longitude": 1.203333
+    },
+    {
+        "name": "LANCELOT",
+        "latitude": 53.41,
+        "longitude": 1.375
+    },
+    {
+        "name": "MINERVA",
+        "latitude": 53.95,
+        "longitude": 0.59
+    },
+    {
+        "name": "NEPTUNE",
+        "latitude": 54.5,
+        "longitude": 0.786667
+    },
+    {
+        "name": "RAVN",
+        "latitude": 54.031667,
+        "longitude": 1.101667
+    },
+    {
+        "name": "RAVN ST2",
+        "latitude": 54.05,
+        "longitude": 1.033333
+    },
+    {
+        "name": "RAVN ST3",
+        "latitude": 54.066667,
+        "longitude": 0.916667
+    },
+    {
+        "name": "RAVB",
+        "latitude": 54.051667,
+        "longitude": 0.9
+    },
+    {
+        "name": "RAVC",
+        "latitude": 54.083333,
+        "longitude": 0.821333
+    },
+    {
+        "name": "WAVENEY",
+        "latitude": 53.353333,
+        "longitude": 1.305
+    },
+    {
+        "name": "WEST SOLE BRAVO",
+        "latitude": 53.718,
+        "longitude": 1.118333
+    },
+    {
+        "name": "WEST SOLE CHARLIE",
+        "latitude": 53.753333,
+        "longitude": 1.08
+    },
+    {
+        "name": "WEST SOLE ALPHA",
+        "latitude": 53.702,
+        "longitude": 1.15
     }
 ]
-

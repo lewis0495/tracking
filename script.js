@@ -244,8 +244,8 @@ async function loadOilRigs() {
         // Custom icon for the oil rig marker
         const oilRigIcon = L.icon({
             iconUrl: 'oilrig.png',
-            iconSize: [16, 16], // size of the icon
-            iconAnchor: [16, 16], // point of the icon which will correspond to marker's location
+            iconSize: [12, 12], // size of the icon
+            iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
             className: 'oil-rig-icon' // Add a class for CSS styling
         });
 
